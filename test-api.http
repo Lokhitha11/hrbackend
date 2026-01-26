@@ -1,0 +1,10 @@
+### Add a new employee
+POST http://localhost:5000/api/employees
+Content-Type: application/json
+
+{
+  "name": "Lokhitha",
+  "department": "IT",
+  "email": "lokhitha@test.com",
+  "phone": "9999999999"
+}

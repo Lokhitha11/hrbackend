@@ -1,0 +1,56 @@
+########################################
+# Get all employees
+########################################
+GET http://localhost:5000/api/employees
+Content-Type: application/json
+
+###
+
+########################################
+# Get single employee by ID
+# Replace 1 with the employee ID you want
+########################################
+GET http://localhost:5000/api/employees/1
+Content-Type: application/json
+
+###
+
+########################################
+# Add a new employee
+########################################
+POST http://localhost:5000/api/employees
+Content-Type: application/json
+
+{
+  "name": "Lokhitha S",
+  "department": "IT",
+  "designation": "Developer",
+  "email": "lokhitha@test.com",
+  "contact": "9999999999",
+  "status": "Active"
+}
+
+###
+
+########################################
+# Update employee by ID
+# Replace 1 with the employee ID you want
+########################################
+PUT http://localhost:5000/api/employees/1
+Content-Type: application/json
+
+{
+  "designation": "Senior Developer",
+  "status": "On Leave"
+}
+
+###
+
+########################################
+# Delete employee by ID
+# Replace 1 with the employee ID you want
+########################################
+DELETE http://localhost:5000/api/employees/1
+Content-Type: application/json
+
+###

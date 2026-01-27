@@ -1,41 +1,18 @@
 const express = require("express");
 const router = express.Router();
+const multer = require("multer");
+const path = require("path");
+
+// -------------------------
+// File storage setup
+// -------------------------
+const storage = multer.memoryStorage(); // store in memory, can later save to disk or DB
+const upload = multer({ storage: storage });
 
 // -------------------------
 // In-memory employees store
 // -------------------------
-let employees = [
-  // Example:
-  // {
-  //   id: 1769414556467,
-  //   name: "Lokhitha",
-  //   fatherName: "Mathan",
-  //   dob: "2002-06-06",
-  //   gender: "Male",
-  //   originCountry: "India",
-  //   email: "lokhitha@example.com",
-  //   contact: "1234567890",
-  //   residentialAddress: "123 Street, City",
-  //   designation: "Developer",
-  //   department: "IT",
-  //   doj: "2025-01-01",
-  //   status: "Active",
-  //   passportNumber: "P1234567",
-  //   visaNumber: "V1234567",
-  //   photo: null,
-  //   passportCopy: null,
-  //   visaCopy: null,
-  //   contract: null,
-  //   salary: 5000,
-  //   transport: 300,
-  //   food: 200,
-  //   stay: 500,
-  //   overtimeEligible: "No",
-  //   overtimeHours: 0,
-  //   airticketEligible: "No",
-  //   incentiveEligible: "No"
-  // }
-];
+let employees = [];
 
 // -------------------------
 // GET all employees
@@ -45,7 +22,7 @@ router.get("/", (req, res) => {
 });
 
 // -------------------------
-// GET single employee by ID
+// GET single employee
 // -------------------------
 router.get("/:id", (req, res) => {
   const id = parseInt(req.params.id);
@@ -55,14 +32,26 @@ router.get("/:id", (req, res) => {
 });
 
 // -------------------------
-// POST new employee
+// POST new employee with file uploads
 // -------------------------
-router.post("/", (req, res) => {
+router.post("/", upload.fields([
+  { name: "empPhoto" },
+  { name: "empContract" },
+  { name: "passportCopy" },
+  { name: "visaCopy" }
+]), (req, res) => {
   const data = req.body;
 
   if (!data.name || !data.department) {
     return res.status(400).json({ error: "Name and Department are required" });
   }
+
+  // Convert files to base64 for frontend preview
+  const files = req.files;
+  const empPhoto = files.empPhoto ? files.empPhoto[0].buffer.toString("base64") : null;
+  const empContract = files.empContract ? files.empContract[0].buffer.toString("base64") : null;
+  const passportCopy = files.passportCopy ? files.passportCopy[0].buffer.toString("base64") : null;
+  const visaCopy = files.visaCopy ? files.visaCopy[0].buffer.toString("base64") : null;
 
   const newEmp = {
     id: Date.now(),
@@ -74,16 +63,17 @@ router.post("/", (req, res) => {
     email: data.email || "",
     contact: data.contact || "",
     residentialAddress: data.residentialAddress || "",
+    permanentAddress: data.permanentAddress || "",
     designation: data.designation || "",
     department: data.department,
     doj: data.doj || "",
     status: data.status || "Active",
     passportNumber: data.passportNumber || "",
     visaNumber: data.visaNumber || "",
-    photo: data.photo || null,
-    passportCopy: data.passportCopy || null,
-    visaCopy: data.visaCopy || null,
-    contract: data.contract || null,
+    photo: empPhoto,
+    contract: empContract,
+    passportCopy: passportCopy,
+    visaCopy: visaCopy,
     salary: data.salary || 0,
     transport: data.transport || 0,
     food: data.food || 0,
@@ -101,16 +91,29 @@ router.post("/", (req, res) => {
 // -------------------------
 // PUT update employee
 // -------------------------
-router.put("/:id", (req, res) => {
+router.put("/:id", upload.fields([
+  { name: "empPhoto" },
+  { name: "empContract" },
+  { name: "passportCopy" },
+  { name: "visaCopy" }
+]), (req, res) => {
   const id = parseInt(req.params.id);
   const emp = employees.find(e => e.id === id);
   if (!emp) return res.status(404).json({ error: "Employee not found" });
 
   const data = req.body;
+  const files = req.files;
 
+  // Update regular fields
   Object.keys(data).forEach(key => {
     emp[key] = data[key];
   });
+
+  // Update files if uploaded
+  if (files.empPhoto) emp.photo = files.empPhoto[0].buffer.toString("base64");
+  if (files.empContract) emp.contract = files.empContract[0].buffer.toString("base64");
+  if (files.passportCopy) emp.passportCopy = files.passportCopy[0].buffer.toString("base64");
+  if (files.visaCopy) emp.visaCopy = files.visaCopy[0].buffer.toString("base64");
 
   res.json(emp);
 });

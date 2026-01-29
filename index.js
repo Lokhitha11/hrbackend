@@ -1,25 +1,20 @@
 const express = require("express");
 const cors = require("cors");
-const bodyParser = require("body-parser");
+const path = require("path");
 
-// Import routes
 const employeeRoutes = require("./routes/employees");
-// const attendanceRoutes = require("./routes/attendance");
-// const payrollRoutes = require("./routes/payroll");
 
 const app = express();
-const PORT = 5000;
 
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
 
-// Routes
+// ✅ Serve uploaded files publicly
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+// ✅ API routes
 app.use("/api/employees", employeeRoutes);
-// app.use("/api/attendance", attendanceRoutes);
-// app.use("/api/payroll", payrollRoutes);
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-
-
+app.listen(5000, () => {
+  console.log("✅ Server running on http://localhost:5000");
 });

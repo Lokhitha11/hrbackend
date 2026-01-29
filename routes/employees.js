@@ -1,133 +1,139 @@
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");
+const fs = require("fs");
 const path = require("path");
 
-// -------------------------
-// File storage setup
-// -------------------------
-const storage = multer.memoryStorage(); // store in memory, can later save to disk or DB
-const upload = multer({ storage: storage });
+/* ================================
+   FILE STORAGE CONFIG
+================================ */
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const dir = path.join(__dirname, "..", "uploads");
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir);
+    cb(null, dir);
+  },
+  filename: function (req, file, cb) {
+    const unique = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, unique + "-" + file.originalname);
+  }
+});
 
-// -------------------------
-// In-memory employees store
-// -------------------------
+const upload = multer({ storage });
+
+/* ================================
+   JSON STORAGE
+================================ */
+const jsonPath = path.join(__dirname, "..", "employees.json");
+
 let employees = [];
+if (fs.existsSync(jsonPath)) {
+  employees = JSON.parse(fs.readFileSync(jsonPath, "utf-8"));
+}
 
-// -------------------------
-// GET all employees
-// -------------------------
+/* ================================
+   HELPERS
+================================ */
+const getFileUrl = (req, name) => {
+  const file = req.files?.find(f => f.fieldname === name);
+  return file ? `/uploads/${file.filename}` : null;
+};
+
+/* ================================
+   GET ALL EMPLOYEES
+================================ */
 router.get("/", (req, res) => {
   res.json(employees);
 });
 
-// -------------------------
-// GET single employee
-// -------------------------
+/* ================================
+   GET SINGLE EMPLOYEE
+================================ */
 router.get("/:id", (req, res) => {
-  const id = parseInt(req.params.id);
-  const emp = employees.find(e => e.id === id);
+  const emp = employees.find(e => e.id == req.params.id);
   if (!emp) return res.status(404).json({ error: "Employee not found" });
   res.json(emp);
 });
 
-// -------------------------
-// POST new employee with file uploads
-// -------------------------
-router.post("/", upload.fields([
-  { name: "empPhoto" },
-  { name: "empContract" },
-  { name: "passportCopy" },
-  { name: "visaCopy" }
-]), (req, res) => {
-  const data = req.body;
+/* ================================
+   ADD EMPLOYEE
+================================ */
+router.post("/", upload.any(), (req, res) => {
+  try {
+    const d = req.body;
 
-  if (!data.name || !data.department) {
-    return res.status(400).json({ error: "Name and Department are required" });
+    if (!d.name || !d.department) {
+      return res.status(400).json({ error: "Name & Department required" });
+    }
+
+    const emp = {
+      id: Date.now(),
+      name: d.name,
+      department: d.department,
+      designation: d.designation || "",
+      status: d.status || "Active",
+
+      fatherName: d.fatherName || "",
+      dob: d.dob || "",
+      gender: d.gender || "",
+      originCountry: d.originCountry || "",
+      email: d.email || "",
+      contact: d.contact || "",
+      residentialAddress: d.residentialAddress || "",
+
+      doj: d.doj || "",
+
+      passportNumber: d.passportNumber || "",
+      visaNumber: d.visaNumber || "",
+
+      salary: Number(d.salary) || 0,
+      transport: Number(d.transport) || 0,
+      food: Number(d.food) || 0,
+      stay: Number(d.stay) || 0,
+
+      overtimeEligible: d.overtimeEligible || "No",
+      overtimeHours: Number(d.overtimeHours) || 0,
+      airticketEligible: d.airticketEligible || "No",
+      incentiveEligible: d.incentiveEligible || "No",
+
+      // ✅ FILE URLS (PUBLIC)
+      empPhoto: getFileUrl(req, "empPhoto"),
+      passportCopy: getFileUrl(req, "passportCopy"),
+      visaCopy: getFileUrl(req, "visaCopy"),
+      contract: getFileUrl(req, "empContract")
+    };
+
+    employees.push(emp);
+    fs.writeFileSync(jsonPath, JSON.stringify(employees, null, 2));
+
+    res.status(201).json(emp);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
   }
-
-  // Convert files to base64 for frontend preview
-  const files = req.files;
-  const empPhoto = files.empPhoto ? files.empPhoto[0].buffer.toString("base64") : null;
-  const empContract = files.empContract ? files.empContract[0].buffer.toString("base64") : null;
-  const passportCopy = files.passportCopy ? files.passportCopy[0].buffer.toString("base64") : null;
-  const visaCopy = files.visaCopy ? files.visaCopy[0].buffer.toString("base64") : null;
-
-  const newEmp = {
-    id: Date.now(),
-    name: data.name,
-    fatherName: data.fatherName || "",
-    dob: data.dob || "",
-    gender: data.gender || "",
-    originCountry: data.originCountry || "",
-    email: data.email || "",
-    contact: data.contact || "",
-    residentialAddress: data.residentialAddress || "",
-    permanentAddress: data.permanentAddress || "",
-    designation: data.designation || "",
-    department: data.department,
-    doj: data.doj || "",
-    status: data.status || "Active",
-    passportNumber: data.passportNumber || "",
-    visaNumber: data.visaNumber || "",
-    photo: empPhoto,
-    contract: empContract,
-    passportCopy: passportCopy,
-    visaCopy: visaCopy,
-    salary: data.salary || 0,
-    transport: data.transport || 0,
-    food: data.food || 0,
-    stay: data.stay || 0,
-    overtimeEligible: data.overtimeEligible || "No",
-    overtimeHours: data.overtimeHours || 0,
-    airticketEligible: data.airticketEligible || "No",
-    incentiveEligible: data.incentiveEligible || "No"
-  };
-
-  employees.push(newEmp);
-  res.status(201).json(newEmp);
 });
 
-// -------------------------
-// PUT update employee
-// -------------------------
-router.put("/:id", upload.fields([
-  { name: "empPhoto" },
-  { name: "empContract" },
-  { name: "passportCopy" },
-  { name: "visaCopy" }
-]), (req, res) => {
-  const id = parseInt(req.params.id);
-  const emp = employees.find(e => e.id === id);
+/* ================================
+   UPDATE EMPLOYEE
+================================ */
+router.put("/:id", (req, res) => {
+  const emp = employees.find(e => e.id == req.params.id);
   if (!emp) return res.status(404).json({ error: "Employee not found" });
 
-  const data = req.body;
-  const files = req.files;
-
-  // Update regular fields
-  Object.keys(data).forEach(key => {
-    emp[key] = data[key];
-  });
-
-  // Update files if uploaded
-  if (files.empPhoto) emp.photo = files.empPhoto[0].buffer.toString("base64");
-  if (files.empContract) emp.contract = files.empContract[0].buffer.toString("base64");
-  if (files.passportCopy) emp.passportCopy = files.passportCopy[0].buffer.toString("base64");
-  if (files.visaCopy) emp.visaCopy = files.visaCopy[0].buffer.toString("base64");
+  Object.assign(emp, req.body);
+  fs.writeFileSync(jsonPath, JSON.stringify(employees, null, 2));
 
   res.json(emp);
 });
 
-// -------------------------
-// DELETE employee
-// -------------------------
+/* ================================
+   DELETE EMPLOYEE
+================================ */
 router.delete("/:id", (req, res) => {
-  const id = parseInt(req.params.id);
-  const index = employees.findIndex(e => e.id === id);
-  if (index === -1) return res.status(404).json({ error: "Employee not found" });
-
-  const deleted = employees.splice(index, 1);
-  res.json(deleted[0]);
+  employees = employees.filter(e => e.id != req.params.id);
+  fs.writeFileSync(jsonPath, JSON.stringify(employees, null, 2));
+  res.json({ success: true });
 });
 
 module.exports = router;

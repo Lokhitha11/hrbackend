@@ -24,7 +24,7 @@ const upload = multer({ storage });
 /* ================================
    JSON STORAGE
 ================================ */
-const jsonPath = path.join(__dirname, "..", "employees.json");
+const jsonPath = path.join(__dirname, "../data/employees.json");
 
 let employees = [];
 if (fs.existsSync(jsonPath)) {

@@ -1,1 +1,20 @@
-[]
+[
+  {
+    "employeeId": 1769758552997,
+    "name": "Lokhitha Sridar",
+    "presentDays": 0,
+    "basicSalary": 9876,
+    "deduction": 9876,
+    "allowances": 0,
+    "netSalary": 0
+  },
+  {
+    "employeeId": 1769770012536,
+    "name": "fghj",
+    "presentDays": 0,
+    "basicSalary": 8789,
+    "deduction": 8789,
+    "allowances": 0,
+    "netSalary": 0
+  }
+]

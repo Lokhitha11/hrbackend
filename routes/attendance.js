@@ -4,49 +4,54 @@ const path = require("path");
 
 const router = express.Router();
 
-// JSON file to store attendance
+// Path to attendance JSON
 const jsonPath = path.join(__dirname, "../data/attendance.json");
 
-// Load existing attendance
-let attendanceRecords = [];
+// Load existing attendance or empty array
+let attendance = [];
 if (fs.existsSync(jsonPath)) {
-  attendanceRecords = JSON.parse(fs.readFileSync(jsonPath, "utf-8"));
+  attendance = JSON.parse(fs.readFileSync(jsonPath, "utf-8"));
 }
 
 // -------------------------
-// GET all attendance records
+// GET all attendance
 // -------------------------
 router.get("/", (req, res) => {
-  res.json(attendanceRecords);
+  res.json(attendance);
 });
 
 // -------------------------
-// POST attendance records
+// POST attendance (array)
 // -------------------------
 router.post("/", (req, res) => {
-  try {
-    const records = req.body;
+  const records = req.body;
 
-    if (!Array.isArray(records)) {
-      return res.status(400).json({ error: "Invalid attendance data" });
-    }
-
-    // Add a timestamp for each record
-    const timestamp = new Date().toISOString();
-    records.forEach(r => r.date = timestamp);
-
-    // Save to in-memory array
-    attendanceRecords.push(...records);
-
-    // Save to JSON file
-    fs.writeFileSync(jsonPath, JSON.stringify(attendanceRecords, null, 2));
-
-    res.status(201).json({ message: "Attendance saved successfully", data: records });
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Internal Server Error", details: err.message });
+  if (!Array.isArray(records) || records.length === 0) {
+    return res.status(400).json({ error: "Attendance array required" });
   }
+
+  records.forEach(record => {
+    // Validate required fields
+    if (!record.empId || !record.date || !record.status) return;
+
+    // Check if record for same emp & date exists
+    const existingIndex = attendance.findIndex(
+      a => a.empId === record.empId && a.date === record.date
+    );
+
+    if (existingIndex !== -1) {
+      // Update existing
+      attendance[existingIndex] = record;
+    } else {
+      // Add new
+      attendance.push(record);
+    }
+  });
+
+  // Save JSON
+  fs.writeFileSync(jsonPath, JSON.stringify(attendance, null, 2));
+
+  res.json({ message: "Attendance saved successfully", savedCount: records.length });
 });
 
 module.exports = router;

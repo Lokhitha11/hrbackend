@@ -10,5 +10,47 @@
     "name": "fghj",
     "status": "Present",
     "date": "2026-01-30T11:32:14.162Z"
+  },
+  {
+    "empId": 1769758552997,
+    "date": "2026-01-30T14:41:28.575Z",
+    "status": "Present"
+  },
+  {
+    "empId": 1769770012536,
+    "date": "2026-01-30T14:41:28.575Z",
+    "status": "Present"
+  },
+  {
+    "empId": 1769758552997,
+    "name": "Lokhitha Sridar",
+    "date": "2026-01-31",
+    "status": "Present",
+    "dayType": "Weekday",
+    "overtimeHours": 1
+  },
+  {
+    "empId": 1769770012536,
+    "name": "fghj",
+    "date": "2026-01-31",
+    "status": "Present",
+    "dayType": "Weekday",
+    "overtimeHours": 2
+  },
+  {
+    "empId": 1769758552997,
+    "name": "Lokhitha Sridar",
+    "date": "2026-01-31",
+    "status": "Present",
+    "dayType": "Weekday",
+    "overtime": 1
+  },
+  {
+    "empId": 1769770012536,
+    "name": "fghj",
+    "date": "2026-01-31",
+    "status": "Present",
+    "dayType": "Weekday",
+    "overtime": 1
   }
 ]

@@ -1,0 +1,35 @@
+[
+  {
+    "empId": 1769758552997,
+    "name": "Lokhitha Sridar",
+    "month": 1,
+    "year": 2026,
+    "basicSalary": "9876.00",
+    "absentDays": 0,
+    "absentDeduction": "0.00",
+    "overtimeAmount": "82.30",
+    "finalSalary": "9958.30"
+  },
+  {
+    "empId": 1769770012536,
+    "name": "fghj",
+    "month": 1,
+    "year": 2026,
+    "basicSalary": "8789.00",
+    "absentDays": 0,
+    "absentDeduction": "0.00",
+    "overtimeAmount": "109.86",
+    "finalSalary": "8898.86"
+  },
+  {
+    "empId": 1770098273487,
+    "name": "mad",
+    "month": 1,
+    "year": 2026,
+    "basicSalary": "0.00",
+    "absentDays": 0,
+    "absentDeduction": "0.00",
+    "overtimeAmount": "0.00",
+    "finalSalary": "0.00"
+  }
+]

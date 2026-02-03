@@ -52,5 +52,29 @@
     "status": "Present",
     "dayType": "Weekday",
     "overtime": 1
+  },
+  {
+    "empId": 1769758552997,
+    "name": "Lokhitha Sridar",
+    "date": "2026-02-02",
+    "status": "Present",
+    "dayType": "Weekday",
+    "overtimeHours": 2
+  },
+  {
+    "empId": 1769770012536,
+    "name": "fghj",
+    "date": "2026-02-02",
+    "status": "Absent",
+    "dayType": "Weekday",
+    "overtimeHours": 0
+  },
+  {
+    "empId": 1770098273487,
+    "name": "mad",
+    "date": "2026-02-02",
+    "status": "Present",
+    "dayType": "Weekday",
+    "overtimeHours": 0
   }
 ]

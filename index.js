@@ -5,23 +5,22 @@ const path = require("path");
 const employeeRoutes = require("./routes/employees");
 const attendanceRoutes = require("./routes/attendance");
 const payrollRoutes = require("./routes/payroll");
+const payslipRoutes = require("./routes/payslip");
+const dashboardRoutes = require("./routes/dashboard");
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-// Serve uploads
+// serve uploads if any
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// API routes
 app.use("/api/employees", employeeRoutes);
 app.use("/api/attendance", attendanceRoutes);
-app.use("/api/payroll", payrollRoutes);
-
-
-console.log("Employee route loaded ✅");
-console.log("Attendance route loaded ✅");
+app.use("/api/payroll", payrollRoutes);   // 🔴 REQUIRED
+app.use("/api/payslip", payslipRoutes);   // 🔴 REQUIRED
+app.use("/api/dashboard", dashboardRoutes);
 
 
 app.listen(5000, () => {
